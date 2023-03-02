@@ -1,0 +1,1 @@
+It is an assignment based on the gt/Nutlope/twitterbio I made for a literature assignment
