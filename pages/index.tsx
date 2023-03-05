@@ -138,6 +138,7 @@ const Home: NextPage = () => {
                     }}
                     key={generatedQues}
                   >
+                    
                     <div className="">
                     {lit === "Hikaye" || lit === "Deneme" ?
                         <p className="text-slate-900 text-lg font-medium">{generatedQues}</p>
@@ -159,6 +160,7 @@ const Home: NextPage = () => {
                               {sentence.length > 0 && (
                                 <p className="text-left text-slate-900 text-lg font-medium">{sentence}</p>
                               )}
+                              {(index +1) % 4 === 0 && <br />} 
                             </div>
                           );
                         })
