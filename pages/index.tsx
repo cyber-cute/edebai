@@ -3,19 +3,23 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
+import DropDown, { LitType } from "../components/DropDown";
 import Footer from "../components/Footer";
-import Header from "../components/Header";
 import LoadingDots from "../components/LoadingDots";
 import ResizablePanel from "../components/ResizablePanel";
 
 const Home: NextPage = () => {
   const [loading, setLoading] = useState(false);
   const [question, setQue] = useState("");
-  const [generatedQues, setGeneratedQue] = useState<any>("");
+  const [lit, setLit] = useState<LitType>("Genel");
+  const [generatedQues, setGeneratedQue] = useState("");  
 
-  console.log("Streamed response: ", generatedQues);
-
-  const prompt = `Üst düzey bir edebiyatçı gibi sorulara uzun, ayrıntılı cevaplar ver: soru: "${question}"`;
+  const prompt = `Üst düzey bir edebiyatçı gibi sorulara uzun, ayrıntılı cevaplar ver: soru: "${question}"
+    ${lit === "Şiir" ? "Verdiğin cevabın içeriğinin şiir olduğundan emin ol ve insanın hoşuna gidecek kelimeler seçmeye özen göster." : null}
+    ${lit === "Özet" ? "Sizden bir metin özetleyicisi gibi davranmanızı istiyorum. Ben bir metin gireceğim ve sizin işiniz de bunu çok kısa bir özete dönüştürmek olacak. Cümleleri tekrarlamayın ve tüm cümlelerin açık ve eksiksiz olduğundan emin olun" : null}
+    ${lit === "Hikaye" ? "Bu formatta sizden istenilen kriterlere uygun bir şekilde hikaye yazınız. format:\nHikaye Başlığı:\nEtiket\nAna karakterler:\nKahramanların karanlık geçmişi\n Hikaye:." : null}
+    ${lit === "Deneme" ? "Deneme yaz." : null}
+  `;
 
   const generateAnswer = async (e: any) => {
     e.preventDefault();
@@ -30,13 +34,12 @@ const Home: NextPage = () => {
         prompt,
       }),
     });
-    console.log("Edge function returned.");
+    console.log(`Edge function returned. ${response}`);
 
     if (!response.ok) {
       throw new Error(response.statusText);
     }
 
-    // This data is a ReadableStream
     const data = response.body;
     if (!data) {
       return;
@@ -63,7 +66,6 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Header />
       <main className="flex flex-1 w-full flex-col items-center justify-center text-center px-4 mt-12 sm:mt-20">
         <h1 className="sm:text-4xl text-3xl max-w-2xl font-bold text-slate-900">
           AI ile Edebiyat Soruları Cevapla.
@@ -85,6 +87,11 @@ const Home: NextPage = () => {
             }
           />
 
+          <div className="flex mb-2 items-center space-x-3">
+            <p className="font-medium">Ne tür içerik yazdırmak istediğinizi seçiniz</p>
+          </div>
+
+          <DropDown lit={lit} setLit={setLit} />
           {!loading && (
             <button
               className="bg-black rounded-xl text-white font-medium px-4 py-2 sm:mt-10 mt-8 hover:bg-black/80 w-full"
@@ -132,19 +139,31 @@ const Home: NextPage = () => {
                     key={generatedQues}
                   >
                     <div className="">
-                      {generatedQues.split(". ").map((sentence:any, index:any)=> {
-                        return (
-                          <div key={index}>
-                            {sentence.length > 0 && (
-                              <li className="mb-2 list-disc">{sentence}</li>
-                            )}
-                          </div>
-                        );
-                        
-                      })
-                      }
+                    {lit === "Hikaye" || lit === "Deneme" ?
+                        <p className="text-slate-900 text-lg font-medium">{generatedQues}</p>
+                      :
+                      lit === "Özet" || lit === "Genel" ?
+                        generatedQues.split(". ").map((sentence:any, index:any)=> {
+                          return (
+                            <div key={index}>
+                              {sentence.length > 0 && (
+                                <li className="text-slate-900 text-lg font-medium">{sentence}</li>
+                              )}
+                            </div>
+                          );
+                        })
+                        :
+                        generatedQues.split(/[,.]/gm).map((sentence:any, index:any)=> {
+                          return (
+                            <div key={index}>
+                              {sentence.length > 0 && (
+                                <p className="text-left text-slate-900 text-lg font-medium">{sentence}</p>
+                              )}
+                            </div>
+                          );
+                        })
+                    }
                     </div>
-
                  </div>
                 </div>
               </>
