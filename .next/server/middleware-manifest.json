@@ -1,0 +1,25 @@
+{
+  "sortedMiddleware": [],
+  "middleware": {},
+  "functions": {
+    "/api/generate": {
+      "env": [
+        "OPENAI_API_KEY"
+      ],
+      "files": [
+        "server/edge-runtime-webpack.js",
+        "server/pages/api/generate.js"
+      ],
+      "name": "pages/api/generate",
+      "page": "/api/generate",
+      "matchers": [
+        {
+          "regexp": "^/api/generate$"
+        }
+      ],
+      "wasm": [],
+      "assets": []
+    }
+  },
+  "version": 2
+}
